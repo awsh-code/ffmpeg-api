@@ -16,35 +16,9 @@
 #
 #####################################################################
 
-FROM node:12.16.2-alpine3.11 as build
-
-RUN apk add --no-cache git
-
-# install pkg
-RUN npm install -g pkg
-
-ENV PKG_CACHE_PATH /usr/cache
-
-WORKDIR /usr/src/app
-
-# Bundle app source
-COPY ./src .
-RUN npm install
-
-# Create single binary file
-RUN pkg --targets node12-alpine-x64 /usr/src/app/package.json
+FROM kazhar/ffmpeg-api as build
 
 
-FROM jrottenberg/ffmpeg:4.2-alpine311
-
-# Create user and change workdir
-RUN adduser --disabled-password --home /home/ffmpgapi ffmpgapi
-WORKDIR /home/ffmpgapi
-
-# Copy files from build stage
-COPY --from=build /usr/src/app/ffmpegapi .
-COPY --from=build /usr/src/app/index.md .
-RUN chown ffmpgapi:ffmpgapi * && chmod 755 ffmpegapi
 
 EXPOSE 3000
 
